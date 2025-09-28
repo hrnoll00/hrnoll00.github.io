@@ -1,0 +1,60 @@
+.root { font-family: Inter, 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial; }
+body { margin: 0; font-family: inherit; color: #17202a; background: linear-gradient(180deg,#f6f9ff 0%, #eef4ff 100%); }
+
+.site-header { display:flex; justify-content:space-between; align-items:center; padding:18px 40px; }
+.site-header .logo { font-weight:800; color:#2f3fb4; font-size:20px; }
+.top-nav .nav-item { margin-left:14px; color:#6b75a8; text-decoration:none }
+
+.hero { padding:36px 0; }
+.hero-inner { max-width:900px; margin:0 auto; text-align:center; padding:80px 24px; background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4)); border-radius:12px; }
+.title { font-size:72px; margin:0; color:#3944d6; font-weight:800; }
+.subtitle { color:#6b75a8; margin-top:8px; font-size:20px; }
+
+.home-actions { margin-top:36px; display:flex; gap:18px; justify-content:center; }
+.btn { padding:14px 28px; border-radius:12px; font-size:18px; border:0; cursor:pointer; }
+.btn.primary { background:#3944d6; color:white; box-shadow: 0 8px 24px rgba(57,68,214,0.18); }
+.btn.ghost { background:transparent; border:2px solid rgba(57,68,214,0.12); color:#3944d6; }
+.badge { display:inline-block; background: rgba(57,68,214,0.06); color:#3944d6; padding:8px 12px; border-radius:24px; margin-top:28px; }
+
+/* Keep existing components usable */
+.container { max-width: 980px; margin: 0 auto; }
+.hidden { display: none; }
+.code { font-weight: 700; font-size: 28px; letter-spacing: 4px; background: #f0f4ff; padding: 12px; display: inline-block; border-radius: 6px; }
+input { padding: 8px 10px; margin: 6px 0; width: 100%; box-sizing: border-box; }
+.prompt { font-weight: 600; margin-top: 12px; }
+.prompt + input { margin-bottom: 12px; }
+.prompt + div button { display: block; margin: 6px 0; }
+
+/* Host setup styles */
+.host-setup { max-width: 900px; margin: 24px auto; padding: 0 24px; }
+.host-header { display:flex; align-items:center; gap:18px; margin-bottom:18px; }
+.back-btn { width:44px; height:44px; border-radius:22px; border:0; background:white; box-shadow:0 6px 18px rgba(20,30,50,0.06); cursor:pointer }
+.host-title { margin:0; color:#3944d6; font-size:32px }
+.host-sub { margin:0; color:#6b75a8 }
+.card { background:white; border-radius:12px; padding:18px; box-shadow:0 6px 26px rgba(20,30,50,0.04); margin-bottom:18px }
+.card-title { margin:0 0 8px 0; color:#3944d6 }
+.label { display:block; color:#6b75a8; margin-bottom:8px }
+.small-input { width:80px; padding:8px; }
+.checkbox-row input { margin-right:8px }
+.hint { color:#9aa0cc; display:inline-block; margin-left:12px }
+.game-format { background:#f5f7ff; padding:12px; border-radius:8px; margin-top:12px }
+.muted { color:#8b92b8; font-size:14px }
+.actions { margin-top:18px }
+.hidden { display:none }
+
+/* Join card styles */
+.join-setup { max-width:900px; margin:24px auto; padding:0 24px }
+.join-card { padding:20px; border-radius:12px }
+.code-row { display:flex; gap:12px; align-items:center; }
+.code-input { padding:14px 16px; font-size:18px; border-radius:10px; width:320px }
+.find-btn { padding:12px 18px; border-radius:10px }
+.muted { color:#8b92b8; margin-top:8px }
+
+.avatar-row { display:flex; gap:8px; margin-top:8px }
+.avatar { padding:8px 10px; border-radius:8px; background:#fff; border:1px solid rgba(20,30,50,0.04); cursor:pointer }
+.avatar.selected { box-shadow:0 6px 18px rgba(57,68,214,0.12); border-color:rgba(57,68,214,0.16) }
+
+.lobby-list { display:flex; gap:12px; align-items:center; flex-wrap:wrap }
+.player-chip { display:flex; gap:8px; align-items:center; background:#fff; padding:8px 12px; border-radius:999px; box-shadow:0 6px 18px rgba(20,30,50,0.04) }
+.player-avatar { font-size:20px }
+

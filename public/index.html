@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Campus Ruckus</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="logo">Campus Ruckus</div>
+      <nav class="top-nav">
+        <a href="#" class="nav-item">Host</a>
+        <a href="#" class="nav-item">Players</a>
+      </nav>
+    </header>
+
+    <main class="hero">
+      <div class="hero-inner container">
+        <h1 class="title">Campus Ruckus</h1>
+        <p class="subtitle">Pregame</p>
+
+        <div id="home" class="home-actions">
+          <button id="hostBtn" class="btn primary"><span class="icon">🖥️</span> Host Game</button>
+          <button id="joinBtn" class="btn ghost"><span class="icon">📱</span> Join Game</button>
+        </div>
+
+        <div class="meta"> <span class="badge">3–20 Players</span> </div>
+      </div>
+    </main>
+
+      <div id="hostView" class="hidden host-setup">
+        <div class="host-header">
+          <button id="backFromHost" class="back-btn">←</button>
+          <div class="host-titles">
+            <h1 class="host-title">Host a Game</h1>
+            <p class="host-sub">Set up your Campus Ruckus session</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Host Details</h3>
+          <label class="label">Your Name (displayed to players)</label>
+          <input id="hostNameInput" placeholder="Enter your name..." />
+          <label class="label">Choose an avatar</label>
+          <div class="avatar-row" id="hostAvatarRow">
+            <button class="avatar">🙂</button>
+            <button class="avatar">😎</button>
+            <button class="avatar">🧑‍🎓</button>
+            <button class="avatar">👩‍🏫</button>
+            <button class="avatar">🧑‍💻</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Game Settings</h3>
+          <label class="label checkbox-row"><input id="allowSpectators" type="checkbox" /> Allow Spectators to Vote</label>
+          <div class="field-row">
+            <label class="label">Answer Time Limit (seconds)</label>
+            <input id="timeLimitInput" class="small-input" value="30" />
+            <div class="hint">recommended: 30-45</div>
+          </div>
+
+          <div class="game-format">
+            <strong>Game Format:</strong> 3 rounds of Campus QuipRush
+            <div class="muted">Players submit witty answers, then vote on favorites</div>
+          </div>
+
+          <div class="actions">
+            <button id="createGameBtn" class="btn primary">Create Game</button>
+          </div>
+        </div>
+
+        <!-- existing lobby/code area (hidden until created) -->
+        <div id="lobbyArea" class="hidden">
+          <p>Your join code:</p>
+          <div id="codeBox" class="code">------</div>
+          <div id="lobby">
+            <h3>Lobby</h3>
+            <div id="playerList">Players: (none)</div>
+            <button id="startRound">Start Round (sample prompts)</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="joinView" class="hidden join-setup">
+        <div class="host-header">
+          <button id="backFromJoin" class="back-btn">←</button>
+          <div class="host-titles">
+            <h1 class="host-title">Join Game</h1>
+            <p class="host-sub">Enter the session code</p>
+          </div>
+        </div>
+
+        <div class="card join-card">
+          <h3 class="card-title"><span class="icon">📱</span> Session Code</h3>
+          <label class="label">6-Letter Code</label>
+          <div class="code-row">
+            <input id="joinCodeInput" class="code-input" placeholder="ABC123" maxlength="6" />
+            <button id="doJoin" class="btn primary find-btn">Find</button>
+          </div>
+          <label class="label">Your name</label>
+          <input id="joinNameInput" placeholder="Enter your name..." />
+          <label class="label">Choose an avatar</label>
+          <div class="avatar-row" id="joinAvatarRow">
+            <button class="avatar">🙂</button>
+            <button class="avatar">😎</button>
+            <button class="avatar">🧑‍🎓</button>
+            <button class="avatar">👩‍🏫</button>
+            <button class="avatar">🧑‍💻</button>
+          </div>
+          <div id="joinResult" class="muted"></div>
+        </div>
+
+        <div id="clientLobby" class="hidden">
+          <h3>Lobby</h3>
+          <div id="clientPlayerList">Players: (none)</div>
+          <div id="clientStageInfo"></div>
+        </div>
+      </div>
+
+      <div id="submissionView" class="hidden">
+        <h2>Submit Answers</h2>
+        <div id="promptsArea"></div>
+        <button id="submitAnswers">Submit</button>
+      </div>
+
+      <div id="votingView" class="hidden">
+        <h2>Vote</h2>
+        <div id="votingArea"></div>
+        <button id="finishVoting">Finish Voting</button>
+      </div>
+
+      <div id="resultsView" class="hidden">
+        <h2>Results</h2>
+        <div id="resultsArea"></div>
+        <button id="backToHome">Home</button>
+      </div>
+    </div>
+    <script src="app.js"></script>
+  </body>
+ </html>
