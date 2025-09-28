@@ -88,7 +88,12 @@ createGameBtn.addEventListener('click', async () => {
   }
 });
 
-joinBtn.addEventListener('click', () => show(joinView));
+// Demo join flow: when clicking Join from the home view we enter a client-only lobby demo
+joinBtn.addEventListener('click', () => {
+  // Show join view inputs first
+  show(joinView);
+  // If you'd like to bypass code entry and immediately demo the lobby, the user can click "Find"
+});
 backFromHost.addEventListener('click', () => show(home));
 backFromJoin.addEventListener('click', () => show(home));
 
@@ -121,6 +126,64 @@ doJoin.addEventListener('click', async () => {
     joinResult.textContent = 'Network error';
   }
 });
+
+// --- Client-only demo lobby (no server) -----------------------------------
+// Trigger a purely client-side lobby that simulates other players joining.
+const demoBtn = document.createElement('button');
+demoBtn.textContent = 'Demo Join (no server)';
+demoBtn.className = 'btn ghost';
+demoBtn.style.marginTop = '8px';
+// Add demo button under join card if present
+const joinCard = document.querySelector('.join-card');
+if (joinCard) joinCard.appendChild(demoBtn);
+
+demoBtn.addEventListener('click', () => demoJoin());
+
+function demoJoin() {
+  // Read name and avatar choice from join inputs (or default)
+  const name = (joinNameInput && joinNameInput.value.trim()) || 'You';
+  const avatar = selectedJoinAvatar || '🙂';
+  // Prepare local lobby state
+  currentPlayer = { id: 'demo-' + Date.now(), name, avatar };
+  currentCode = 'DEMO';
+  // Show client lobby
+  joinResult.textContent = '';
+  clientLobby.classList.remove('hidden');
+  show(joinView);
+  // Seed the list with the current player
+  const players = [currentPlayer];
+  renderClientPlayers(players);
+
+  // Simulate other players joining over the next few seconds
+  const simulated = [
+    { name: 'Alex', avatar: '😎' },
+    { name: 'Taylor', avatar: '🧑‍🎓' },
+    { name: 'Sam', avatar: '👩‍🏫' },
+    { name: 'Jamie', avatar: '🧑‍💻' }
+  ];
+
+  simulated.forEach((p, i) => {
+    setTimeout(() => {
+      players.push({ id: 'sim-' + i + '-' + Date.now(), name: p.name, avatar: p.avatar });
+      // animate insertion by re-rendering
+      renderClientPlayers(players);
+    }, 800 + i * 900);
+  });
+}
+
+function renderClientPlayers(players) {
+  if (!clientPlayerList) return;
+  clientPlayerList.innerHTML = '';
+  const list = document.createElement('div');
+  list.className = 'lobby-list';
+  players.forEach(p => {
+    const chip = document.createElement('div');
+    chip.className = 'player-chip';
+    chip.innerHTML = `<div class="player-avatar">${p.avatar || '🙂'}</div><div class="player-name">${p.name}</div>`;
+    list.appendChild(chip);
+  });
+  clientPlayerList.appendChild(list);
+}
 
 function startPolling() {
   stopPolling();
