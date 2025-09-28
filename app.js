@@ -240,18 +240,32 @@ function startDemoGameFlow() {
 }
 
 function prepareAnswerPhase() {
-  // Build the list of prompts the human must answer (prompts created by bots)
-  // For demo: human answers the other players' prompts (indexes 1 and 2)
-  const answerPrompts = demoPrompts.slice(1, 3);
-  // Render inputs for each
+  // Build demoSubmissions so each prompt ends up with exactly two answers
+  demoSubmissions = {};
+  demoPrompts.forEach((_, idx) => demoSubmissions[idx] = []);
+
+  // For human-created prompt (index 0) -> bots answer
+  const bots = demoPlayers.filter(p => p.id !== currentPlayer.id);
+  if (demoPrompts[0]) {
+    // pick two bots (or repeat if not enough)
+    for (let i = 0; i < 2; i++) {
+      const bot = bots[i % Math.max(1, bots.length)];
+      demoSubmissions[0].push({ playerId: bot.id, text: generateBotAnswer(demoPrompts[0]) });
+    }
+  }
+
+  // For other prompts (created by bots), render inputs so human answers them (one human + one bot)
+  const humanAnswerPrompts = demoPrompts.slice(1, 3);
   promptsArea.innerHTML = '';
-  answerPrompts.forEach((p, idx) => {
+  humanAnswerPrompts.forEach((p, idx) => {
+    const realIdx = idx + 1; // map back into demoPrompts
     const div = document.createElement('div');
-    div.innerHTML = `<div class="prompt">${p}</div><input data-prompt="${idx+1}" placeholder="Your answer" />`;
+    div.innerHTML = `<div class="prompt">${p}</div><input data-prompt="${realIdx}" placeholder="Your answer" />`;
     promptsArea.appendChild(div);
   });
   show(submissionView);
-  // Change submitAnswers behavior to record answers and simulate bot answers
+
+  // Change submitAnswers behavior to record human answers and add one bot answer per prompt
   const onSubmit = async () => {
     const inputs = promptsArea.querySelectorAll('input');
     inputs.forEach(input => {
@@ -259,18 +273,12 @@ function prepareAnswerPhase() {
       const text = input.value.trim() || '...';
       demoSubmissions[promptIndex] = demoSubmissions[promptIndex] || [];
       demoSubmissions[promptIndex].push({ playerId: currentPlayer.id, text });
+      // add one bot answer for this prompt
+      const bot = bots[(promptIndex) % Math.max(1, bots.length)];
+      demoSubmissions[promptIndex].push({ playerId: bot.id, text: generateBotAnswer(demoPrompts[promptIndex]) });
     });
-    // Auto-generate bot answers for each prompt
-    Object.keys(demoSubmissions).forEach(k => {
-      const idx = parseInt(k);
-      // Ensure bots add answers (2 bots per prompt)
-      const bots = demoPlayers.filter(p => p.id !== currentPlayer.id);
-      for (let i = 0; i < 2; i++) {
-        const bot = bots[i % bots.length];
-        demoSubmissions[idx].push({ playerId: bot.id, text: generateBotAnswer(demoPrompts[idx]) });
-      }
-    });
-    // Move to voting stage (use votingView)
+
+    // Now each prompt should have exactly two answers. Move to voting stage.
     show(votingView);
     renderDemoVoting(demoPrompts, demoSubmissions);
     submitAnswers.removeEventListener('click', onSubmit);
@@ -286,25 +294,57 @@ function generateBotAnswer(promptText) {
 function renderDemoVoting(prompts, submissions) {
   votingArea.innerHTML = '';
   prompts.forEach((p, idx) => {
-    const div = document.createElement('div');
-    div.innerHTML = `<div class="prompt">${p}</div>`;
-    const list = document.createElement('div');
+    // Only render duel for prompts that have exactly two submissions
     const subs = submissions[idx] || [];
+    if (subs.length !== 2) return;
+
+    const duel = document.createElement('div');
+    duel.className = 'duel-row';
+
+    // compute total votes for percentages
+    const totalVotes = subs.reduce((sum, s) => sum + (s.votes || 0), 0) || 0;
+
     subs.forEach((s, si) => {
-      const b = document.createElement('button');
+      const card = document.createElement('div');
+      card.className = 'duel-card';
       const author = demoPlayers.find(dp => dp.id === s.playerId) || { name: 'Bot' };
-      b.textContent = `${s.text} — ${author.name}`;
-      b.addEventListener('click', () => {
-        // Simple vote: mark selection visually and store in results
-        b.style.outline = '3px solid rgba(57,68,214,0.12)';
-        // store vote count on the fly
+      const pct = totalVotes ? Math.round(((s.votes || 0) / totalVotes) * 100) : 0;
+      card.innerHTML = `<div class="prompt">${p}</div><div class="answer-text">${s.text}</div>`;
+
+      const badge = document.createElement('div');
+      badge.className = 'duel-badge';
+      badge.textContent = pct + '%';
+      card.appendChild(badge);
+
+      const authorLabel = document.createElement('div');
+      authorLabel.className = 'duel-author';
+      authorLabel.textContent = author.name;
+      card.appendChild(authorLabel);
+
+      // clicking selects this card
+      card.addEventListener('click', () => {
+        // mark selection style
+        card.style.boxShadow = '0 20px 50px rgba(57,68,214,0.16)';
+        card.dataset.voted = 'true';
+        // increment vote counter locally
         s.votes = (s.votes || 0) + 1;
+        // update other card's badge
+        // re-render badges for both cards
+        const sibling = card.parentNode.querySelectorAll('.duel-card');
+        sibling.forEach((c, idx2) => {
+          const sub = subs[idx2];
+          const b = c.querySelector('.duel-badge');
+          const tot = subs.reduce((sum, ss) => sum + (ss.votes || 0), 0) || 0;
+          b.textContent = tot ? Math.round(((sub.votes || 0) / tot) * 100) + '%' : '0%';
+        });
       });
-      list.appendChild(b);
+
+      duel.appendChild(card);
     });
-    div.appendChild(list);
-    votingArea.appendChild(div);
+
+    votingArea.appendChild(duel);
   });
+
   // Add finish voting button handler to tally and show results
   finishVoting.addEventListener('click', () => {
     // Compute simple counts per prompt

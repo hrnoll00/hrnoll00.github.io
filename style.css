@@ -58,3 +58,16 @@ input { padding: 8px 10px; margin: 6px 0; width: 100%; box-sizing: border-box; }
 .player-chip { display:flex; gap:8px; align-items:center; background:#fff; padding:8px 12px; border-radius:999px; box-shadow:0 6px 18px rgba(20,30,50,0.04) }
 .player-avatar { font-size:20px }
 
+/* Duel voting card layout (two answers head-to-head) */
+.duel-row { display:flex; gap:36px; justify-content:center; align-items:flex-start; margin-top:18px }
+.duel-card { background:#fff; border-radius:8px; padding:28px; width:40%; box-shadow:0 12px 36px rgba(0,0,0,0.12); position:relative; font-size:28px; font-weight:700; }
+.duel-author { position:absolute; bottom:-26px; left:16px; background:#2f3fb4; color:#fff; padding:6px 10px; border-radius:6px; font-weight:800 }
+.duel-badge { position:absolute; top:-12px; right:-12px; background:#111; color:#fff; width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800 }
+.duel-card small { display:block; font-size:14px; font-weight:600; color:#6b75a8; margin-top:8px }
+
+/* Responsive tweak */
+@media (max-width: 800px) {
+	.duel-row { flex-direction:column; }
+	.duel-card { width:90%; }
+}
+
