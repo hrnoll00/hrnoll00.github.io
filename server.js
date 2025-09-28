@@ -8,13 +8,14 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static frontend
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static frontend from project root so index.html/app.js/style.css are found
+app.use(express.static(__dirname));
 
 // In-memory store for rooms: { code: { players: [], createdAt, stage, prompts, submissions, votes, results } }
 const rooms = new Map();
 
-// 6-digit numeric code generator
-const nano = customAlphabet('0123456789', 6);
+// 6-character alphanumeric (uppercase letters + digits) code generator to match client-side validation
+const nano = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 6);
 
 function generateUniqueCode() {
   // Try until we find a non-colliding code (very low probability of collision)

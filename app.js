@@ -93,7 +93,8 @@ backFromHost.addEventListener('click', () => show(home));
 backFromJoin.addEventListener('click', () => show(home));
 
 doJoin.addEventListener('click', async () => {
-  const code = joinCodeInput.value.trim();
+  // Normalize code to uppercase so it's case-insensitive for users
+  const code = joinCodeInput.value.trim().toUpperCase();
   const name = joinNameInput ? joinNameInput.value.trim() : '';
   if (!/^[A-Za-z0-9]{6}$/.test(code)) {
     joinResult.textContent = 'Please enter a 6-character code.';
