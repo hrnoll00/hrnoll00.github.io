@@ -173,6 +173,14 @@ function demoJoin() {
 
   // Store demo players state for game flow
   demoPlayers = players;
+  // Ensure the start demo button has a handler (button lives in the clientLobby view)
+  const startBtn = document.getElementById('startDemoGame');
+  if (startBtn) {
+    // remove any existing listeners by cloning the node
+    const newBtn = startBtn.cloneNode(true);
+    startBtn.parentNode.replaceChild(newBtn, startBtn);
+    newBtn.addEventListener('click', startDemoGameFlow);
+  }
 }
 
 function renderClientPlayers(players) {
@@ -190,11 +198,12 @@ function renderClientPlayers(players) {
 }
 
 // --- Demo game flow state -------------------------------------------------
+
 let demoPlayers = [];
 let demoPrompts = []; // array of prompt strings
 let demoSubmissions = {}; // { promptIndex: [ { playerId, text } ] }
 
-if (startDemoGame) startDemoGame.addEventListener('click', startDemoGameFlow);
+// NOTE: attach Start Demo Game handler when the demo lobby is shown to ensure the button exists
 
 function startDemoGameFlow() {
   // Only allow if we have players
