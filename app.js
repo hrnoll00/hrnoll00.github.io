@@ -26,6 +26,7 @@ const votingArea = el('votingArea');
 const finishVoting = el('finishVoting');
 const resultsView = el('resultsView');
 const resultsArea = el('resultsArea');
+const startDemoGame = el('startDemoGame');
 const backToHome = el('backToHome');
 
 let currentCode = null;
@@ -169,6 +170,9 @@ function demoJoin() {
       renderClientPlayers(players);
     }, 800 + i * 900);
   });
+
+  // Store demo players state for game flow
+  demoPlayers = players;
 }
 
 function renderClientPlayers(players) {
@@ -183,6 +187,128 @@ function renderClientPlayers(players) {
     list.appendChild(chip);
   });
   clientPlayerList.appendChild(list);
+}
+
+// --- Demo game flow state -------------------------------------------------
+let demoPlayers = [];
+let demoPrompts = []; // array of prompt strings
+let demoSubmissions = {}; // { promptIndex: [ { playerId, text } ] }
+
+if (startDemoGame) startDemoGame.addEventListener('click', startDemoGameFlow);
+
+function startDemoGameFlow() {
+  // Only allow if we have players
+  if (!demoPlayers || demoPlayers.length < 2) return alert('Need players to demo the game');
+  // Move to prompt creation (reuse submissionView as creation screen)
+  show(submissionView);
+  // Clear and show one input for the human to create a prompt
+  promptsArea.innerHTML = '';
+  const div = document.createElement('div');
+  div.innerHTML = `<div class="prompt">Create a prompt for others to answer</div><input id="createdPromptInput" placeholder="e.g. What's your secret talent?" />`;
+  promptsArea.appendChild(div);
+  // Change submit button to proceed from creation to answering
+  submitAnswers.textContent = 'Save Prompt and Continue';
+  const onCreate = async () => {
+    const input = document.getElementById('createdPromptInput');
+    const text = (input && input.value.trim()) || 'What is your favorite color?';
+    demoPrompts = [text];
+    // Generate prompts from bot players (to simulate others creating prompts)
+    const botPrompts = demoPlayers.slice(1, 3).map((p, i) => {
+      return `Answer this: ${['What is your favorite color?','Finish this: My secret talent is...','If I were a college mascot I would be...'][i % 3]}`;
+    });
+    demoPrompts = demoPrompts.concat(botPrompts);
+    // Setup empty submissions for each prompt
+    demoSubmissions = {};
+    demoPrompts.forEach((_, idx) => demoSubmissions[idx] = []);
+    // After creation, go to answer screen where the human answers prompts from others
+    // Prepare answer prompts: exclude the human-created prompt for the human to answer others'
+    prepareAnswerPhase();
+    // restore submit button label and handler
+    submitAnswers.textContent = 'Submit Answers';
+    submitAnswers.removeEventListener('click', onCreate);
+  };
+  submitAnswers.addEventListener('click', onCreate);
+}
+
+function prepareAnswerPhase() {
+  // Build the list of prompts the human must answer (prompts created by bots)
+  // For demo: human answers the other players' prompts (indexes 1 and 2)
+  const answerPrompts = demoPrompts.slice(1, 3);
+  // Render inputs for each
+  promptsArea.innerHTML = '';
+  answerPrompts.forEach((p, idx) => {
+    const div = document.createElement('div');
+    div.innerHTML = `<div class="prompt">${p}</div><input data-prompt="${idx+1}" placeholder="Your answer" />`;
+    promptsArea.appendChild(div);
+  });
+  show(submissionView);
+  // Change submitAnswers behavior to record answers and simulate bot answers
+  const onSubmit = async () => {
+    const inputs = promptsArea.querySelectorAll('input');
+    inputs.forEach(input => {
+      const promptIndex = parseInt(input.getAttribute('data-prompt'));
+      const text = input.value.trim() || '...';
+      demoSubmissions[promptIndex] = demoSubmissions[promptIndex] || [];
+      demoSubmissions[promptIndex].push({ playerId: currentPlayer.id, text });
+    });
+    // Auto-generate bot answers for each prompt
+    Object.keys(demoSubmissions).forEach(k => {
+      const idx = parseInt(k);
+      // Ensure bots add answers (2 bots per prompt)
+      const bots = demoPlayers.filter(p => p.id !== currentPlayer.id);
+      for (let i = 0; i < 2; i++) {
+        const bot = bots[i % bots.length];
+        demoSubmissions[idx].push({ playerId: bot.id, text: generateBotAnswer(demoPrompts[idx]) });
+      }
+    });
+    // Move to voting stage (use votingView)
+    show(votingView);
+    renderDemoVoting(demoPrompts, demoSubmissions);
+    submitAnswers.removeEventListener('click', onSubmit);
+  };
+  submitAnswers.addEventListener('click', onSubmit);
+}
+
+function generateBotAnswer(promptText) {
+  const canned = ['Blue, obviously.','I once juggled textbooks.','Probably a taco.','An existential study habit.','A mascot with style.'];
+  return canned[Math.floor(Math.random()*canned.length)];
+}
+
+function renderDemoVoting(prompts, submissions) {
+  votingArea.innerHTML = '';
+  prompts.forEach((p, idx) => {
+    const div = document.createElement('div');
+    div.innerHTML = `<div class="prompt">${p}</div>`;
+    const list = document.createElement('div');
+    const subs = submissions[idx] || [];
+    subs.forEach((s, si) => {
+      const b = document.createElement('button');
+      const author = demoPlayers.find(dp => dp.id === s.playerId) || { name: 'Bot' };
+      b.textContent = `${s.text} — ${author.name}`;
+      b.addEventListener('click', () => {
+        // Simple vote: mark selection visually and store in results
+        b.style.outline = '3px solid rgba(57,68,214,0.12)';
+        // store vote count on the fly
+        s.votes = (s.votes || 0) + 1;
+      });
+      list.appendChild(b);
+    });
+    div.appendChild(list);
+    votingArea.appendChild(div);
+  });
+  // Add finish voting button handler to tally and show results
+  finishVoting.addEventListener('click', () => {
+    // Compute simple counts per prompt
+    const results = {};
+    Object.keys(demoSubmissions).forEach(k => {
+      const subs = demoSubmissions[k] || [];
+      const counts = subs.map(s => s.votes || 0);
+      const max = Math.max(...counts);
+      results[k] = { counts, winnerIndex: counts.indexOf(max) };
+    });
+    show(resultsView);
+    renderResults(demoPrompts, demoSubmissions, results);
+  }, { once: true });
 }
 
 function startPolling() {
