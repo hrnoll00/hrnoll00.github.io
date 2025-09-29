@@ -33,6 +33,17 @@ let currentCode = null;
 let currentPlayer = null;
 let poller = null;
 
+// Helper to make inputs reliably focusable on touch devices
+function enhanceInput(inputEl) {
+  if (!inputEl) return;
+  // Prevent parent handlers from stealing touch/click
+  inputEl.addEventListener('touchstart', e => { e.stopPropagation(); /* ensure focus */ inputEl.focus(); }, { passive: true });
+  inputEl.addEventListener('click', e => { e.stopPropagation(); }, { passive: true });
+  // small focus class
+  inputEl.addEventListener('focus', () => inputEl.classList.add('focused'));
+  inputEl.addEventListener('blur', () => inputEl.classList.remove('focused'));
+}
+
 
 function show(view) {
   home.classList.add('hidden');
@@ -262,6 +273,9 @@ function prepareAnswerPhase() {
     const div = document.createElement('div');
     div.innerHTML = `<div class="prompt">${p}</div><input data-prompt="${realIdx}" placeholder="Your answer" />`;
     promptsArea.appendChild(div);
+    // enhance the newly created input for touch
+    const input = div.querySelector('input');
+    enhanceInput(input);
   });
   show(submissionView);
 
@@ -436,6 +450,9 @@ function renderPrompts(prompts) {
     const div = document.createElement('div');
     div.innerHTML = `<div class="prompt">${p}</div><input data-prompt="${idx}" placeholder="Your answer" />`;
     promptsArea.appendChild(div);
+    // enhance inputs for mobile
+    const input = div.querySelector('input');
+    enhanceInput(input);
   });
 }
 

@@ -1,6 +1,21 @@
 .root { font-family: Inter, 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial; }
 body { margin: 0; font-family: inherit; color: #17202a; background: linear-gradient(180deg,#f6f9ff 0%, #eef4ff 100%); }
 
+/* Mobile/touch improvements */
+html, body { height: 100%; }
+body { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+input, button { touch-action: manipulation; }
+.focused { outline: 2px solid rgba(57,68,214,0.16); }
+
+/* Fit UI for tall mobile screens (approx 19.5:9) by constraining hero and making controls reachable */
+@media (max-width:600px) and (orientation: portrait) {
+	.hero-inner { padding: 40px 16px; max-height: calc(100vh - 120px); overflow:auto; }
+	.title { font-size: 42px; }
+	.home-actions { flex-direction:column; gap:12px }
+	.btn { width: 100%; font-size:18px }
+	.duel-card { font-size:20px; padding:20px }
+}
+
 .site-header { display:flex; justify-content:space-between; align-items:center; padding:18px 40px; }
 .site-header .logo { font-weight:800; color:#2f3fb4; font-size:20px; }
 .top-nav .nav-item { margin-left:14px; color:#6b75a8; text-decoration:none }
