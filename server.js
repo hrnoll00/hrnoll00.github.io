@@ -137,5 +137,19 @@ app.get('/api/rooms/:code', (req, res) => {
   res.json({ code: req.params.code, players: room.players });
 });
 
+const os = require('os');
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server listening on http://localhost:${PORT}`));
+
+// Listen on all interfaces so other devices on the LAN can connect
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server listening on port ${PORT}`);
+  // Print local network addresses for convenience
+  const ifaces = os.networkInterfaces();
+  Object.keys(ifaces).forEach(name => {
+    ifaces[name].forEach(iface => {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        console.log(` - http://${iface.address}:${PORT}`);
+      }
+    });
+  });
+});
